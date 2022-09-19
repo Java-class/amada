@@ -2,6 +2,7 @@ package ir.javaclass.amada.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Date;
 
@@ -13,10 +14,12 @@ import java.util.Date;
  */
 @Getter
 @AllArgsConstructor
+@ToString
 public class BoardResponseDto {
     private final String boardId;
     private final String title;
     private final String description;
     private final Date creationDate;
     private final Date modificationDate;
+    private final String creatorUsername;
 }
