@@ -35,7 +35,7 @@ public class TokenService {
         return tokenStr;
     }
 
-    public Optional<Token> getToken(String tokenStr){
+    public Optional<Token> getToken(String tokenStr) {
         return tokenRepository.findById(tokenStr);
     }
 }

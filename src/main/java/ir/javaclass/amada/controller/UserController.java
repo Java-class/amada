@@ -1,5 +1,7 @@
 package ir.javaclass.amada.controller;
 
+import ir.javaclass.amada.exception.TokenNotFoundException;
+import ir.javaclass.amada.exception.UserAlreadyExistException;
 import ir.javaclass.amada.model.UserLoginRequestDto;
 import ir.javaclass.amada.model.UserSignUpRequestDto;
 import ir.javaclass.amada.service.UserService;
@@ -24,7 +26,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(value = "/signUp")
-    public void signUp(@RequestBody UserSignUpRequestDto requestDto) {
+    public void signUp(@RequestBody UserSignUpRequestDto requestDto) throws UserAlreadyExistException {
         userService.signUp(requestDto.getUsername(),
                 requestDto.getPassword(),
                 requestDto.getEmail(),
@@ -33,7 +35,7 @@ public class UserController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity<Void> login(@RequestBody UserLoginRequestDto requestDto) {
+    public ResponseEntity<Void> login(@RequestBody UserLoginRequestDto requestDto) throws TokenNotFoundException {
         return ResponseEntity
                 .ok()
                 .header("Authorization",

@@ -3,6 +3,8 @@ package ir.javaclass.amada;
 import ir.javaclass.amada.entity.Board;
 import ir.javaclass.amada.entity.Card;
 import ir.javaclass.amada.entity.UserAccount;
+import ir.javaclass.amada.exception.UserAlreadyExistException;
+import ir.javaclass.amada.exception.UserNotFoundException;
 import ir.javaclass.amada.repository.BoardRepository;
 import ir.javaclass.amada.repository.CardRepository;
 import ir.javaclass.amada.repository.UserRepository;
@@ -44,7 +46,7 @@ public class BoardServiceTest {
 
 
     @Test
-    public void _01testCreateNewBoard() {
+    public void _01testCreateNewBoard() throws UserNotFoundException {
         boardService.createBoard("new board", "create from test service");
     }
 
@@ -90,7 +92,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void _06testSignUp() {
+    public void _06testSignUp() throws UserAlreadyExistException {
         userService.signUp("mostafa_anbarmoo",
                 "Aa123456",
                 "mostafa.anbarmoo@gmail.com",
@@ -99,7 +101,7 @@ public class BoardServiceTest {
     }
 
     @Test
-    public void _07testGetListUsers(){
+    public void _07testGetListUsers() {
         List<String> usernames = new ArrayList<>();
         usernames.add("mostafa_anbarmoo");
         usernames.add("22222");

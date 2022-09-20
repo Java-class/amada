@@ -3,13 +3,15 @@ package ir.javaclass.amada.service;
 import ir.javaclass.amada.entity.Board;
 import ir.javaclass.amada.entity.Card;
 import ir.javaclass.amada.entity.UserAccount;
-import ir.javaclass.amada.model.BoardResponseDto;
-import ir.javaclass.amada.model.RequestContext;
+import ir.javaclass.amada.exception.DataNotFoundException;
+import ir.javaclass.amada.exception.UserNotFoundException;
+import ir.javaclass.amada.model.*;
 import ir.javaclass.amada.repository.BoardRepository;
 import ir.javaclass.amada.repository.CardRepository;
 import ir.javaclass.amada.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -37,19 +39,50 @@ public class BoardService {
 
     private final RequestContext requestContext;
 
-    public void createBoard(String title, String description) {
-        UserAccount creator = userRepository.findById(requestContext.getUsername()).get();
-        Board board = new Board();
-        board.setId(UUID.randomUUID().toString());
-        board.setTitle(title);
-        board.setDescription(description);
-        board.setCreationDate(new Date());
-        board.setCreator(creator);
-        boardRepository.save(board);
+    public void createBoard(String title, String description) throws UserNotFoundException {
+        Optional<UserAccount> optionalUserAccount = userRepository.findById(requestContext.getUsername());
+        if (optionalUserAccount.isPresent()) {
+            Board board = new Board();
+            board.setId(UUID.randomUUID().toString());
+            board.setTitle(title);
+            board.setDescription(description);
+            board.setCreationDate(new Date());
+            board.setCreator(optionalUserAccount.get());
+            boardRepository.save(board);
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
+    public GetBoardDetailResponseDto getBoardDetail(String boardId) throws DataNotFoundException {
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        if (optionalBoard.isPresent()) {
+            Board board = optionalBoard.get();
+            return new GetBoardDetailResponseDto(board.getId(),
+                    board.getTitle(),
+                    board.getDescription(),
+                    board.getCreationDate(),
+                    board.getModificationDate(),
+                    new UserDetail(board.getCreator()),
+                    board.getCardList().stream().map(CardDetailDto::new).collect(Collectors.toList()));
+        } else {
+            throw new DataNotFoundException();
+        }
+    }
+
+    public void editBoardTitle(String boardId, String newTitle) throws DataNotFoundException {
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        if (optionalBoard.isPresent()) {
+            Board board = optionalBoard.get();
+            board.setTitle(newTitle);
+            board.setModificationDate(new Date());
+            boardRepository.save(board);
+        } else {
+            throw new DataNotFoundException();
+        }
     }
 
     public List<BoardResponseDto> list() {
-        log.info("username load from request context:{}", requestContext.getUsername());
         return boardRepository.findAll()
                 .stream()
                 .map(board -> new BoardResponseDto(board.getId(),
@@ -57,7 +90,7 @@ public class BoardService {
                         board.getDescription(),
                         board.getCreationDate(),
                         board.getModificationDate(),
-                        board.getCreator().getUsername()))
+                        new UserDetail(board.getCreator())))
                 .collect(Collectors.toList());
     }
 
@@ -65,7 +98,7 @@ public class BoardService {
         boardRepository.deleteById(boardId);
     }
 
-    public void addCard(String boardId, String cardTitle, List<String> memberIds) {
+    public void addCard(String boardId, String cardTitle, List<String> memberIds) throws DataNotFoundException {
         Optional<Board> optional = boardRepository.findById(boardId);
         if (optional.isPresent()) {
             List<UserAccount> members = userRepository.findByUsernameIn(memberIds);
@@ -75,6 +108,22 @@ public class BoardService {
             card.setCreationDate(new Date());
             card.setMemberList(members);
             cardRepository.save(card);
+        } else {
+            throw new DataNotFoundException();
+        }
+    }
+
+    public void deleteCard(String boardId, String cardId) throws DataNotFoundException {
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        Optional<Card> optionalCard = cardRepository.findById(cardId);
+        if (optionalBoard.isPresent() && optionalCard.isPresent()) {
+            Board board = optionalBoard.get();
+            board.getCardList().remove(optionalCard.get());
+            board.setModificationDate(new Date());
+            boardRepository.save(board);
+            cardRepository.delete(optionalCard.get());
+        } else {
+            throw new DataNotFoundException();
         }
     }
 }

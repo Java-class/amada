@@ -1,6 +1,8 @@
 package ir.javaclass.amada.service;
 
 import ir.javaclass.amada.entity.UserAccount;
+import ir.javaclass.amada.exception.TokenNotFoundException;
+import ir.javaclass.amada.exception.UserAlreadyExistException;
 import ir.javaclass.amada.model.RequestContext;
 import ir.javaclass.amada.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +25,11 @@ import java.util.Optional;
 @Slf4j
 public class UserService {
 
-    private RequestContext userContext;
-
     private final UserRepository userRepository;
 
     private final TokenService tokenService;
 
-    public void signUp(String username, String password, String email, String firstName, String lastName) {
+    public void signUp(String username, String password, String email, String firstName, String lastName) throws UserAlreadyExistException {
         if (userRepository.findById(username).isEmpty()) {
             UserAccount user = new UserAccount();
             user.setUsername(username);
@@ -39,18 +39,19 @@ public class UserService {
             user.setLastName(lastName);
             user.setCreationDate(new Date());
             userRepository.save(user);
+        } else {
+            throw new UserAlreadyExistException();
         }
     }
 
-    public String login(String username, String password) {
+    public String login(String username, String password) throws TokenNotFoundException {
         Optional<UserAccount> optional = userRepository.findUserAccountByUsernameAndPasswordHash(username,
                 DigestUtils.md5DigestAsHex(password.getBytes(StandardCharsets.UTF_8)));
         if (optional.isPresent()) {
             return tokenService.generateToken(optional.get());
         } else {
-            //// handle response here
+            throw new TokenNotFoundException();
         }
-        return null;
     }
 
 }
