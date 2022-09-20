@@ -5,6 +5,7 @@ import ir.javaclass.amada.entity.Card;
 import ir.javaclass.amada.entity.UserAccount;
 import ir.javaclass.amada.exception.UserAlreadyExistException;
 import ir.javaclass.amada.exception.UserNotFoundException;
+import ir.javaclass.amada.model.RequestContext;
 import ir.javaclass.amada.repository.BoardRepository;
 import ir.javaclass.amada.repository.CardRepository;
 import ir.javaclass.amada.repository.UserRepository;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author Mostafa Anbarmoo
@@ -47,6 +49,8 @@ public class BoardServiceTest {
 
     @Test
     public void _01testCreateNewBoard() throws UserNotFoundException {
+        RequestContext requestContext = new RequestContext();
+        requestContext.setUsername("mostafa_anbarmoo");
         boardService.createBoard("new board", "create from test service");
     }
 
@@ -60,17 +64,17 @@ public class BoardServiceTest {
     @Test
     public void _03CreateNewCard() {
         Board newBord = new Board();
-        newBord.setId("iddddd");
-        newBord.setTitle("new title");
+        newBord.setId(UUID.randomUUID().toString());
+        newBord.setTitle("New Board");
 
         Card card = new Card();
-        card.setId("c1");
-        card.setTitle("tttttt");
+        card.setId(UUID.randomUUID().toString());
+        card.setTitle("impl new amada project");
         cardRepository.save(card);
 
         Card card1 = new Card();
-        card1.setId("c1");
-        card1.setTitle("tttttt");
+        card1.setId(UUID.randomUUID().toString());
+        card1.setTitle("impl unit test for amada project");
         cardRepository.save(card1);
 
         newBord.getCardList().add(card);
@@ -87,8 +91,11 @@ public class BoardServiceTest {
 
     @Test
     public void _05SearchCardByTitle() {
-        List<Card> searchList = cardRepository.findCardByTitleLike("tttttt");
+        List<Card> searchList = cardRepository.findCardByTitleLike("impl");
         log.info("result: " + searchList.size());
+        searchList.forEach(card -> {
+            log.info(card.toString());
+        });
     }
 
     @Test
@@ -104,7 +111,7 @@ public class BoardServiceTest {
     public void _07testGetListUsers() {
         List<String> usernames = new ArrayList<>();
         usernames.add("mostafa_anbarmoo");
-        usernames.add("22222");
+        usernames.add("not_found_id");
         List<UserAccount> userAccounts = userRepository.findByUsernameIn(usernames);
         log.info("##### size of list: {}", userAccounts.size());
 

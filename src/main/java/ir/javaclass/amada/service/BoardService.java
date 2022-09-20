@@ -11,7 +11,6 @@ import ir.javaclass.amada.repository.CardRepository;
 import ir.javaclass.amada.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -40,15 +39,19 @@ public class BoardService {
     private final RequestContext requestContext;
 
     public void createBoard(String title, String description) throws UserNotFoundException {
-        Optional<UserAccount> optionalUserAccount = userRepository.findById(requestContext.getUsername());
-        if (optionalUserAccount.isPresent()) {
-            Board board = new Board();
-            board.setId(UUID.randomUUID().toString());
-            board.setTitle(title);
-            board.setDescription(description);
-            board.setCreationDate(new Date());
-            board.setCreator(optionalUserAccount.get());
-            boardRepository.save(board);
+        if (requestContext.getUsername() != null && !requestContext.getUsername().isEmpty()) {
+            Optional<UserAccount> optionalUserAccount = userRepository.findById(requestContext.getUsername());
+            if (optionalUserAccount.isPresent()) {
+                Board board = new Board();
+                board.setId(UUID.randomUUID().toString());
+                board.setTitle(title);
+                board.setDescription(description);
+                board.setCreationDate(new Date());
+                board.setCreator(optionalUserAccount.get());
+                boardRepository.save(board);
+            } else {
+                throw new UserNotFoundException();
+            }
         } else {
             throw new UserNotFoundException();
         }
