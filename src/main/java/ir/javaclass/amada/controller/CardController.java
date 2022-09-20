@@ -1,6 +1,7 @@
 package ir.javaclass.amada.controller;
 
 import ir.javaclass.amada.model.CardDetailDto;
+import ir.javaclass.amada.model.SortType;
 import ir.javaclass.amada.service.CardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class CardController {
     private final CardService cardService;
 
     @GetMapping
-    public ResponseEntity<List<CardDetailDto>> searchByTitle(@RequestParam("title") String cardTitle) {
-        return ResponseEntity.ok(cardService.list(cardTitle));
+    public ResponseEntity<List<CardDetailDto>> list(@RequestParam("title") String cardTitle, @RequestParam("sortBy") SortType sortType) {
+        return ResponseEntity.ok(cardService.list(cardTitle, sortType));
     }
 }

@@ -58,7 +58,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8989/api/card?title=impl",
+					"raw": "http://localhost:8989/api/card?title=impl&sortBy=MODIFICATION_DATE",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -72,6 +72,10 @@
 						{
 							"key": "title",
 							"value": "impl"
+						},
+						{
+							"key": "sortBy",
+							"value": "MODIFICATION_DATE"
 						}
 					]
 				}
