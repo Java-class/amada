@@ -99,8 +99,8 @@ public class BoardService {
     }
 
     public void addCard(String boardId, String cardTitle, List<String> memberIds) throws DataNotFoundException {
-        Optional<Board> optional = boardRepository.findById(boardId);
-        if (optional.isPresent()) {
+        Optional<Board> optionalBoard = boardRepository.findById(boardId);
+        if (optionalBoard.isPresent()) {
             List<UserAccount> members = userRepository.findByUsernameIn(memberIds);
             Card card = new Card();
             card.setId(UUID.randomUUID().toString());
@@ -108,6 +108,10 @@ public class BoardService {
             card.setCreationDate(new Date());
             card.setMemberList(members);
             cardRepository.save(card);
+            Board board = optionalBoard.get();
+            board.getCardList().add(card);
+            board.setModificationDate(new Date());
+            boardRepository.save(board);
         } else {
             throw new DataNotFoundException();
         }

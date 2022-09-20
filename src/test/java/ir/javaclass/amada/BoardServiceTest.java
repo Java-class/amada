@@ -87,7 +87,7 @@ public class BoardServiceTest {
 
     @Test
     public void _05SearchCardByTitle() {
-        List<Card> searchList = cardRepository.findCardByTitle("tttttt");
+        List<Card> searchList = cardRepository.findCardByTitleLike("tttttt");
         log.info("result: " + searchList.size());
     }
 

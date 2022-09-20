@@ -18,4 +18,6 @@ import java.util.Optional;
 public interface CardRepository extends MongoRepository<Card, String> {
 
     List<Card> findCardByTitle(String title);
+
+    List<Card> findCardByTitleLike(String title);
 }
